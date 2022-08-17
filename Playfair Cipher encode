@@ -1,0 +1,95 @@
+import numpy as np
+cond = True
+while (cond):
+    key = str(input("enter key :"))
+    for p in range(0, len(key)):
+        c = key.count(key[p])
+        if c>1:
+            print("key is wrong. please change key.")
+            cond = True
+            break
+        else:
+            cond = False
+n = "abcdefghijklmnopqrstuvwxyz0123456789"
+bits = ""
+for i in range(0, len(n)):
+        if n[i] not in key:
+            bits = bits + n[i]
+# print(bits)
+
+table_1 = []
+table_2 = []
+table = []
+
+for i in range(len(key)):
+    table_1.append(key[i])
+
+for j in range(len(bits)):
+    table_2.append(bits[j])
+
+table = np.array([*table_1, *table_2]).reshape(6, 6)
+print(table)
+
+message = str(input("enter message : "))
+
+if len(message) % 2 == 0:
+    for i in range(0, len(message), 2):
+        if message[i] == message[i+1]:
+            message = message[:i+1]+'x'+message[i+1:]
+    if len(message) % 2 != 0:
+        if message[len(message)-1] == 'x':
+            message = message + 'y'
+        else:
+            message = message+'x'
+elif len(message) % 2 != 0:
+    temp = message[len(message)-1]
+    new_m = message[0:len(message)-1]
+    for i in range(0, len(new_m), 2):
+        if new_m[i] == new_m[i+1]:
+            new_m = new_m[:i+1]+'x'+new_m[i+1:]
+    message = new_m+temp
+    if len(message) % 2 != 0:
+        if message[len(message)-1] == 'x':
+            message = message + 'y'
+        else:
+            message = message+'x'
+
+o = []
+for i in range(0, len(message)):
+    o.append(message[i])
+
+k = []
+l = []
+for i in range(0,len(o),2):
+    k.append(o[i])
+    k.append(o[i+1])
+    re = np.where(table == k[0])
+    er = np.where(table == k[1])
+    if re[0]!=er[0] and re[1]!=er[1]:
+        l.append(table[re[0], er[1]])
+        l.append(table[er[0], re[1]])
+    
+    elif re[0]==er[0] and re[1]!=er[1]:
+        if re[1]==5:
+            l.append(table[re[0], re[1]-5])
+            l.append(table[er[0], er[1]+1])
+        elif er[1]==5:
+            l.append(table[re[0], re[1]+1])
+            l.append(table[er[0], er[1]-5])
+        else:
+            l.append(table[re[0], re[1]+1])
+            l.append(table[er[0], er[1]+1])
+    elif re[0]!=er[0] and re[1]==er[1]:
+        if re[0]==5:
+            l.append(table[re[0]-5, re[1]])
+            l.append(table[er[0]+1, er[1]])
+        elif er[0]==5:
+            l.append(table[re[0]+1, re[1]])
+            l.append(table[er[0]-5, er[1]])
+        else:
+            l.append(table[re[0]+1, re[1]])
+            l.append(table[er[0]+1, er[1]])
+    k.clear()
+l = np.array(l, dtype=str).flatten()
+cipher_text = ''.join(l)
+print("cipher text : ",cipher_text)

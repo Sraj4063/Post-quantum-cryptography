@@ -1,0 +1,63 @@
+import math, random
+
+def gcd(a, b):
+    while b != 0:
+        a, b = b, a % b
+    return a
+
+def mul_inv(e,r):
+    for i in range(r):
+        if ((e*i)%r == 1):
+            return i
+
+def check_prime(num):
+    if num == 2:
+        return True
+    if num < 2 or num % 2 == 0:
+        return False
+    for n in range(3, int(num**0.5)+2, 2):
+        if num % n == 0:
+            return False
+    return True
+
+def keypair(p, q):
+    if not (check_prime(p) and check_prime(q)):
+        print('Both numbers must be prime.')
+    elif p == q:
+        print('p and q cannot be equal')
+    
+    n = p * q
+    phi = (p-1) * (q-1)
+
+    e = random.randrange(1, phi)
+    g = gcd(e, phi)
+    while g != 1:
+        e = random.randrange(1, phi)
+        g = gcd(e, phi)
+
+    d = mul_inv(e, phi)
+
+    return ((e, n), (d, n))
+
+def encrypt(publickey, plaintext):
+    key, n = publickey
+    ciphertext = [(ord(char) ** key) % n for char in plaintext]
+    return ciphertext
+
+def decrypt(privatekey, ciphertext):
+    key, n = privatekey
+    plaintext = [chr((char ** key) % n) for char in ciphertext]
+    return plaintext
+
+p = int(input("Enter a prime number : "))
+q = int(input("Enter another prime number : "))
+public, private = keypair(p, q)
+print ("Your public key is ", public ," and your private key is ", private)
+message = input("Enter a message to encrypt : ")
+
+print ("Your encrypted message is: ")
+encrypted_msg = encrypt(private, message)
+print (''.join(map(lambda x: str(x), encrypted_msg)))
+
+print ("Your message is:")
+print (''.join(decrypt(public, encrypted_msg)))
